@@ -59,9 +59,16 @@ def dfs(graph, start, goal, path=[], visited=set()):
 
 
 # Додавання ваг до ребер графа (Завдання №3)
-for (u, v) in G.edges():
-    # Вага ребра випадково обирається від 1 до 10
-    G[u][v]['weight'] = random.randint(1, 10)
+edge_weights = {(1, 2): 3, (1, 3): 5, (2, 3): 2, (2, 4): 4, (3, 4): 1, (3, 5): 2,
+                (4, 5): 3, (4, 6): 5, (5, 6): 2, (5, 7): 7, (6, 8): 3, (7, 8): 2,
+                (8, 9): 4, (8, 10): 6, (9, 10): 1, (9, 11): 5, (10, 12): 2, (11, 12): 3,
+                (11, 13): 4, (12, 13): 1, (12, 14): 2, (13, 14): 3, (13, 15): 6, (14, 15): 4}
+
+for (u, v), weight in edge_weights.items():
+    if G.has_edge(u, v):
+        G[u][v]['weight'] = weight
+    else:
+        G.add_edge(u, v, weight=weight)
 
 # Використання алгоритму Дейкстри для знаходження найкоротших шляхів від кожної вершини до всіх інших
 shortest_paths = dict(nx.all_pairs_dijkstra_path(G, weight='weight'))
