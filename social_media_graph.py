@@ -1,6 +1,5 @@
 import networkx as nx 
 import matplotlib.pyplot as plt
-import random
 
 # Створення графа
 G = nx.Graph()
@@ -71,13 +70,38 @@ for (u, v), weight in edge_weights.items():
         G.add_edge(u, v, weight=weight)
 
 # Використання алгоритму Дейкстри для знаходження найкоротших шляхів від кожної вершини до всіх інших
-shortest_paths = dict(nx.all_pairs_dijkstra_path(G, weight='weight'))
+def dijkstra(graph, start):
+    """ Реалізація алгоритму Дейкстри для знаходження найкоротших шляхів від start до всіх інших вершин """
+    distances = {vertex: float('infinity') for vertex in graph}
+    distances[start] = 0
+    unvisited = list(graph.keys())
 
-# Перегляд найкоротших шляхів від однієї конкретної вершини (наприклад, від вершини 1)
-shortest_paths_from_1 = shortest_paths[1]
+    while unvisited:
+        # Знаходження вершини з найменшою відстанню серед невідвіданих
+        current_vertex = min(unvisited, key=lambda vertex: distances[vertex])
 
-# Перетворення графа з NetworkX в словник для зручності використання у функціях
-graph_dict = nx.to_dict_of_lists(G)
+        # Якщо поточна відстань є нескінченністю, то ми завершили роботу
+        if distances[current_vertex] == float('infinity'):
+            break
+
+        for neighbor, weight in graph[current_vertex].items():
+            distance = distances[current_vertex] + weight
+
+            # Якщо нова відстань коротша, то оновлюємо найкоротший шлях
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+
+        # Видаляємо поточну вершину з множини невідвіданих
+        unvisited.remove(current_vertex)
+
+    return distances
+
+# Перетворення графа з NetworkX в словник для використання у функції
+graph_dict = {node: {neighbour: G[node][neighbour]['weight']
+                     for neighbour in G[node]} for node in G.nodes()}
+
+# Виклик функції для вершини 1
+dijkstra_paths = dijkstra(graph_dict, 1)
 
 # Виконання DFS і BFS
 start_node = 1
@@ -110,4 +134,4 @@ average_degree = sum(dict(G.degree()).values()) / number_of_nodes
 print(f"кількість вершин: {number_of_nodes}, ребер: {number_of_edges}, ступінь вершин: { average_degree}")
 print(f"Шлях, за допомогою BFS: {bfs_path}")
 print(f"Шлях, за допомогою DFS: {dfs_path}")
-print(f"коротший шлях: {shortest_paths_from_1[end_node]}")  
+print(f"коротший шлях: {dijkstra_paths}")
